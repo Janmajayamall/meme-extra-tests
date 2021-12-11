@@ -9,11 +9,12 @@ const axiosBaseInstance = axios.create({
 	headers: { "Content-Type": "application/json" },
 });
 const crypto = require("crypto");
+require("dotenv").config();
 
-const coldPvKey = "";
-const hotPvKey = "";
-const keySignature = "";
-
+const coldPvKey = process.env.COLD_PV_KEY;
+const hotPvKey = process.env.HOT_PV_KEY;
+const keySignature = process.env.KEY_SIGNATURE;
+console.log(coldPvKey, hotPvKey, keySignature);
 const coldAccount = web3.eth.accounts.privateKeyToAccount(coldPvKey);
 const hotAccount = web3.eth.accounts.privateKeyToAccount(hotPvKey);
 
@@ -25,6 +26,7 @@ const addresses = {
 };
 const oracleAddresses = {
 	cars: "0xe8a1c53105fe8d681e7686d462f53e21e0c8c0d6",
+	cryptoMemes: "0x8042fa9e9b9cff0d3ab7abf14a4d13e5a33f6846",
 };
 function oracleContractInstance(_oracleAddress) {
 	return new web3.eth.Contract(oracleContractJson, _oracleAddress);
@@ -83,6 +85,7 @@ async function createFundBetOnMarket(
 		"1"
 	);
 	const receipt = await sendTx(tx);
+	console.log("Txs success");
 	return receipt;
 }
 
@@ -119,14 +122,19 @@ async function createNewPost(
 async function createMultiplePosts(count) {
 	for (let i = 0; i < count; i++) {
 		const id = crypto.randomBytes(8).toString("hex");
-		const imageUrl = `https://i5.walmartimages.com/asr/aac0f71f-ffa1-4951-90a1-b45c682d88b6_1.dc965775e1cbd4790a04fab4812bf555.jpeg?odnHeight=612&odnWidth=612&odnBg=FFFFFF?id=${id}`;
-		await createNewPost(imageUrl, oracleAddresses.cars, "0.0001", "0.0001");
+		const imageUrl = `https://investorplace.com/wp-content/uploads/2021/04/doge1600-768x432.jpg?id=${id}`;
+		await createNewPost(
+			imageUrl,
+			oracleAddresses.cryptoMemes,
+			"0.00001",
+			"0.0000"
+		);
 	}
 }
 
 (async function () {
 	try {
-		createMultiplePosts(2);
+		createMultiplePosts(50);
 	} catch (e) {
 		console.log("error thrown");
 	}
