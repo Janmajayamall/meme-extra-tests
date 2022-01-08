@@ -14,7 +14,7 @@ require("dotenv").config();
 const coldPvKey = process.env.COLD_PV_KEY;
 const hotPvKey = process.env.HOT_PV_KEY;
 const keySignature = process.env.KEY_SIGNATURE;
-console.log(coldPvKey, hotPvKey, keySignature);
+
 const coldAccount = web3.eth.accounts.privateKeyToAccount(coldPvKey);
 const hotAccount = web3.eth.accounts.privateKeyToAccount(hotPvKey);
 
@@ -24,9 +24,10 @@ const addresses = {
 	MarketRouter: "0x3c7717EAfaC324919df2d91CceFEea7817B851D2",
 	WETH: "0xebbc3452cc911591e4f18f3b36727df45d6bd1f9",
 };
+
 const oracleAddresses = {
-	cars: "0xe8a1c53105fe8d681e7686d462f53e21e0c8c0d6",
-	cryptoMemes: "0x8042fa9e9b9cff0d3ab7abf14a4d13e5a33f6846",
+	cars: "0x998f7b75240ddaa5007ac9989d9c1cfde4a60e6e",
+	cryptoMemes: "0x9eb3ae61480663440c456f144d1cc3922c668b4f",
 };
 function oracleContractInstance(_oracleAddress) {
 	return new web3.eth.Contract(oracleContractJson, _oracleAddress);
@@ -102,31 +103,33 @@ async function createNewPost(
 		betAmountDec
 	);
 
-	// add it to the backend
-	const msg = {
-		oracleAddress,
-		eventIdentifierStr: imageUrl,
-	};
-	const signatures = getRequestSignatures(JSON.stringify(msg));
-	const { data } = await axiosBaseInstance.request({
-		url: "/post/new",
-		method: "POST",
-		data: {
-			signatures,
-			msg,
-		},
-	});
-	console.log(data);
+	try {
+		// add it to the backend
+		const msg = {
+			oracleAddress,
+			eventIdentifierStr: imageUrl,
+		};
+		const signatures = getRequestSignatures(JSON.stringify(msg));
+		const { data } = await axiosBaseInstance.request({
+			url: "/post/new",
+			method: "POST",
+			data: {
+				signatures,
+				msg,
+			},
+		});
+		console.log(data);
+	} catch (e) {}
 }
 
 async function createMultiplePosts(count) {
 	for (let i = 0; i < count; i++) {
 		const id = crypto.randomBytes(8).toString("hex");
-		const imageUrl = `https://investorplace.com/wp-content/uploads/2021/04/doge1600-768x432.jpg?id=${id}`;
+		const imageUrl = `https://i.insider.com/57694de3dd0895261f8b47aa?width=700?id=${id}`;
 		await createNewPost(
 			imageUrl,
-			oracleAddresses.cryptoMemes,
-			"0.00001",
+			oracleAddresses.cars,
+			"0.00000001",
 			"0.0000"
 		);
 	}
@@ -134,7 +137,7 @@ async function createMultiplePosts(count) {
 
 (async function () {
 	try {
-		createMultiplePosts(50);
+		createMultiplePosts(100);
 	} catch (e) {
 		console.log("error thrown");
 	}
